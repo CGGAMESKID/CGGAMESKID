@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CGGAMES | Portal Automatizado</title>
+    <style>
+        :root {
+            --bg-color: #0c0d14;
+            --card-bg: #191b26;
+            --accent: #00ffa3; /* Verde neón gamer */
+            --text: #ffffff;
+            --text-secondary: #9aa0b9;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text);
+            font-family: 'Segoe UI', Roboto, system-ui, sans-serif;
+        }
+        header {
+            background: linear-gradient(180deg, #161925 0%, #0c0d14 100%);
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom: 3px solid var(--accent);
+            box-shadow: 0 5px 25px rgba(0, 255, 163, 0.15);
+        }
+        h1 { 
+            margin: 0; 
+            font-size: 2.8rem; 
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-shadow: 0 0 15px rgba(0, 255, 163, 0.4); 
+        }
+        header p { color: var(--text-secondary); margin: 8px 0 0 0; font-size: 1.1rem; }
+
+        .container { 
+            max-width: 1200px; 
+            margin: 30px auto; 
+            padding: 0 20px; 
+        }
+
+        /* REPRODUCTOR CENTRAL */
+        .player-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 40px;
+        }
+        .poki-screen {
+            width: 100%;
+            aspect-ratio: 16 / 9;
+            background-color: #020308;
+            border-radius: 18px;
+            border: 3px solid #23263a;
+            overflow: hidden;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .poki-screen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: none;
+        }
+        .placeholder-text {
+            text-align: center;
+            color: var(--text-secondary);
+            font-size: 1.4rem;
+        }
+        .placeholder-text span {
+            display: block;
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* BOTÓN PANTALLA COMPLETA */
+        .fullscreen-btn {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(25, 27, 38, 0.95);
+            color: var(--accent);
+            border: 2px solid var(--accent);
+            border-radius: 10px;
+            padding: 12px 20px;
+            font-weight: bold;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 15px rgba(0, 255, 163, 0.3);
+            z-index: 10;
+        }
+        .fullscreen-btn:hover {
+            background-color: var(--accent);
+            color: #0c0d14;
+            box-shadow: 0 0 20px var(--accent);
+            transform: scale(1.05);
+        }
+
+        /* CUADRÍCULA DE JUEGOS AUTOMÁTICA */
+        .section-title {
+            font-size: 1.6rem;
+            margin: 40px 0 20px 0;
+            border-left: 5px solid var(--accent);
+            padding-left: 12px;
+        }
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 20px;
+        }
+        .game-card {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            border: 2px solid #23263a;
+            display: flex;
+            flex-direction: column;
+        }
+        .game-card:hover {
+            transform: translateY(-8px) scale(1.03);
+            border-color: var(--accent);
+            box-shadow: 0 10px 25px rgba(0, 255, 163, 0.3);
+        }
+        .game-thumb {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            background-color: #1f2233;
+        }
+        .game-info { 
+            padding: 12px; 
+            background-color: #141622;
+            text-align: center;
+            border-top: 1px solid #23263a;
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+        .game-card:hover .game-info {
+            color: var(--accent);
+        }
+
+        footer {
+            text-align: center;
+            padding: 40px;
+            color: #4e536b;
+            font-size: 0.9rem;
+            margin-top: 60px;
+            border-top: 1px solid #191b26;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>⚡ CGGAMES</h1>
+        <p>Tu catálogo automatizado estilo Poki</p>
+    </header>
+
+    <div class="container">
+        
+        <!-- REPRODUCTOR CENTRAL -->
+        <div class="player-wrapper">
+            <div class="poki-screen" id="playerArea">
+                <div class="placeholder-text" id="placeholder">
+                    <span>🎮</span>
+                    Elige un juego del catálogo para iniciar
+                </div>
+                <iframe id="gameFrame" src="" allowfullscreen allow="gamepad *; autoplay *; screen-wake-lock *; clipboard-write *;"></iframe>
+            </div>
+            <button class="fullscreen-btn" id="fsButton" onclick="activarPantallaCompleta()">
+                🗖 Pantalla Completa
+            </button>
+        </div>
+
+        <h2 class="section-title">⭐ Catálogo Activo</h2>
+        
+        <!-- El sistema de JavaScript va a rellenar este cuadro vacío automáticamente -->
+        <div class="games-grid" id="contenedorJuegos"></div>
+
+    </div>
+
+    <footer>
+        <p>&copy; 2026 CGGAMES - Sistema Dinámico de Plantillas.</p>
+    </footer>
+
+    <script>
+        // =========================================================================
+        // 🛠️ TU PANEL DE CONTROL: ¡AQUÍ AGREGAS LOS JUEGOS QUE QUIERAS!
+        // Solo copia una línea completa, ponle una coma al final y cambia los datos.
+        // =========================================================================
+        const misJuegos = [
+            {
+                nombre: "Subway Surfers",
+                urlJuego: "https://github.io",
+                urlFoto: "https://picsum.photos"
+            },
+            {
+                nombre: "Drive Mad",
+                urlJuego: "https://github.io",
+                urlFoto: "https://picsum.photos"
+            },
+            {
+                nombre: "Tunnel Rush",
+                urlJuego: "https://github.io",
+                urlFoto: "https://picsum.photos"
+            },
+            {
+                nombre: "Bloxd.io",
+                urlJuego: "https://bloxd.io",
+                urlFoto: "https://picsum.photos"
+            },
+            {
+    nombre: "smashkarts",
+    urlJuego: "https://smashkarts.io/",
+    urlFoto: "https://www.google.com/search?sca_esv=520e404e6f2eccbe&sxsrf=APpeQnsBxUezoeRMS9C35nSuKEl1sslQ5A:1789324843833&udm=2&fbs=ABfTbFUDadgeu2mn4mYJ8iEZ1GUDd8ABuXxNzQEi57SWOuuPdfVFhgBbO079P_7XyIRUXsER2313fZUe9w2i3XMEAHT9FJPhN8_IRZCTtV1qqAbrKui7sptpt25ek4kkWu1OYyNRKtQGDm8R9FKAGp-cFs-ccCYgM-USLxVrqgZcMRGf9vnoLPfQ-pInb625fDyEq2xn16ZlkkArAg6zSERk91YwMQ-YjQ&q=smash+karts&sa=X&ved=2ahUKEwjw2dC9muyWAxX0L9AFHXZGM3wQtKgLegQIERAB&biw=1366&bih=599&dpr=1#sv=CAMSURoyKhBlLWQ0eVZadTF0YjR4aENNMg5kNHlWWnUxdGI0eGhDTToOeG50SnpJMHdHOG9ZVE0gBCoXCgFzEhBlLWQ0eVZadTF0YjR4aENNGAEwARgHIJiZiaUHSggQARgBIAEoAQ"
+            },
+
+        ];
+
+        // =========================================================================
+        // 🧠 EL "CEREBRO" AUTOMÁTICO (No necesitas tocar esto)
+        // =========================================================================
+        
+        // Esta función dibuja las plantillas y fotos automáticamente en la pantalla
+        function inicializarCatalogo() {
+            const contenedor = document.getElementById('contenedorJuegos');
+            
+            misJuegos.forEach(juego => {
+                // Crea la estructura de la plantilla de la tarjeta
+                const tarjeta = document.createElement('div');
+                tarjeta.className = 'game-card';
+                tarjeta.setAttribute('onclick', `cargarJuego('${juego.urlJuego}')`);
+                
+                tarjeta.innerHTML = `
+                    <img class="game-thumb" src="${juego.urlFoto}" alt="${juego.nombre}">
+                    <div class="game-info">${juego.nombre}</div>
+                `;
+                
+                // Mete la tarjeta armada en la cuadrícula de la web
+                contenedor.appendChild(tarjeta);
+            });
+        }
+
+        // Ejecuta el creador en cuanto abre la página
+        inicializarCatalogo();
+
+        // Controla la carga en el reproductor central
+        function cargarJuego(urlDelJuego) {
+            const iframe = document.getElementById('gameFrame');
+            const placeholder = document.getElementById('placeholder');
+            const botonFS = document.getElementById('fsButton');
+            
+            iframe.src = urlDelJuego;
+            placeholder.style.display = 'none';
+            iframe.style.display = 'block';
+            botonFS.style.display = 'flex';
+            
+            document.getElementById('playerArea').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Controla la pantalla completa
+        function activarPantallaCompleta() {
+            const juego = document.getElementById('gameFrame');
+            if (juego.requestFullscreen) { juego.requestFullscreen(); } 
+            else if (juego.webkitRequestFullscreen) { juego.webkitRequestFullscreen(); } 
+            else if (juego.msRequestFullscreen) { juego.msRequestFullscreen(); }
+        }
+    </script>
+
+</body>
+</html>
